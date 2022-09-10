@@ -2,7 +2,7 @@ using System.Threading;
 using WindowsInput;
 using WindowsInput.Native;
 
-namespace music
+namespace MusicUploader
 {
     public class FileUtil
     {

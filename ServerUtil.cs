@@ -3,8 +3,9 @@ using OpenQA.Selenium.Chrome;
 using System.Collections.ObjectModel;
 using WindowsInput;
 using WindowsInput.Native;
+using System.Collections.Generic;
 
-namespace music
+namespace MusicUploader
 {
     public class ServerUtil
     {
@@ -78,13 +79,11 @@ namespace music
             sim.Mouse.LeftButtonClick();
         }
 
-        public void DownloadSongs(List<string> urls)
+        public void DownloadSongs(string listUrl, int startIndex)
         {
+            List<string> urls = this.GetVideoUrls(listUrl, startIndex);
             this.GoToUrl(MP3_URL);
-            if (MP3_URL == MP3_NOW_URL)
-                DownloadSongsUsingMp3Now(urls);
-            else
-                DownloadSongsUsingSaveMp3(urls);
+            DownloadSongsUsingMp3Now(urls);
         }
 
         private void DownloadSongsUsingMp3Now(List<string> urls)
