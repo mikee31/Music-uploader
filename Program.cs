@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+
 namespace MusicUploader
 {
     class Program
@@ -45,17 +48,15 @@ namespace MusicUploader
 
         public static void StartDownloadProcess(string listUrl, int startIndex)
         {
-            ServerUtil server = new ServerUtil();
             resetEventStartUpload.Set();
-            server.DownloadSongs(listUrl, startIndex);
-            server.QuitDriver();
+            DownloadUtil.DownloadSongs(listUrl, startIndex);
         }
 
         public static void StartUploadProcess(string ipAdress, CancellationToken cancelToken)
         {
             resetEventStartUpload.WaitOne();
-            ServerUtil server = new ServerUtil();
-            server.GoToUrl("http://" + ipAdress);
+            ChromeDriver driver = new ChromeDriver();
+            driver.GoToUrl("http://" + ipAdress);
             bool cancelled = false;
             string[] songs = new string[0];
             do
@@ -67,7 +68,7 @@ namespace MusicUploader
                 Program.resetEventUpload.WaitOne();
                 Program.resetEventDownload.Reset();
 
-                while (!server.AreUploadsFinished())
+                while (!UploadUtil.AreUploadsFinished(driver))
                 {
                     Thread.Sleep(1000);
                 }
@@ -76,10 +77,10 @@ namespace MusicUploader
                 {
                     FileUtil.DeleteFiles(songs);
                 }
-                songs = server.UploadSongs();
+                songs = UploadUtil.UploadSongs(driver);
                 Program.resetEventDownload.Set();
             } while (!cancelled);
-            server.QuitDriver();
+            driver.Quit();
         }
         
         //Validation done for now.

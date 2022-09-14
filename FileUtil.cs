@@ -1,3 +1,5 @@
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using System.Threading;
 using WindowsInput;
 using WindowsInput.Native;
@@ -43,9 +45,9 @@ namespace MusicUploader
             
         }
 
-        public static void HandleFileExplorer(string[] songsToUpload, ServerUtil server)
+        public static void HandleFileExplorer(string[] songsToUpload, ChromeDriver driver)
         {
-            server.MakeWindowBeInFocus();
+            driver.MakeWindowBeInFocus();
 
             InputSimulator sim = new InputSimulator();
             sim.Keyboard.TextEntry(DOWNLOADS_FOLDER);
