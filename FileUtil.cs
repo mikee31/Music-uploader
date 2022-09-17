@@ -1,6 +1,4 @@
-using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using System.Threading;
 using WindowsInput;
 using WindowsInput.Native;
 

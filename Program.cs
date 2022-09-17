@@ -1,7 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using OpenQA.Selenium;
+﻿using System.Text.RegularExpressions;
 using OpenQA.Selenium.Chrome;
 
 namespace MusicUploader
@@ -20,8 +17,7 @@ namespace MusicUploader
         public static ManualResetEvent resetEventStartUpload = new ManualResetEvent(false);
         public static ManualResetEvent resetEventUpload = new ManualResetEvent(false);
         public static ManualResetEvent resetEventDownload = new ManualResetEvent(false);
-
-        // TODO : a LOT and I mean a whole fucking lot of validation and exceptions.
+        
         public static void Main(string[] args) 
         {
             Console.Clear();

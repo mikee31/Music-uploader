@@ -1,8 +1,6 @@
-using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using WindowsInput;
-using WindowsInput.Native;
 using System.Collections.ObjectModel;
 
 namespace MusicUploader
@@ -19,9 +17,21 @@ namespace MusicUploader
             driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(0);
         }
 
+        // There's surely a better way to manage exceptions than this.
         public static void GoToUrl(this ChromeDriver driver, string url)
         {
-            driver.Navigate().GoToUrl(url);
+            bool hasWorked = false;
+            do
+            {
+                try
+                {
+                    driver.Navigate().GoToUrl(url);
+                }
+                catch (Exception)
+                {
+                    hasWorked = false;
+                }
+            } while (!hasWorked);
         }
 
          public static void MakeWindowBeInFocus(this ChromeDriver driver)
