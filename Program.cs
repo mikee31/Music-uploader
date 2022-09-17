@@ -6,32 +6,35 @@ namespace MusicUploader
     class Program
     {
         public const string SAVE_FILE = @"\infos.sav";
+        public const string DOWNLOAD_FOLDER_NAME = "tempDownloads";
         public const string INVALID_URL_MESSAGE = "This URL is not valid.";
         public const string CHANGE_URL_MESSAGE = "Do you want to change the playlist url? (y/n)";
         public const string WARNING = "*** You need to make sure your default downloads folder is empty. The program won't work otherwise. Press any key to continue. ***";
         public const string URL_PROMPT = "Enter the adress of the playlist that you want to upload.";
         public const string IP_PROMPT = "Enter the ip adress where songs will be uploaded.";
         public const string FIRST_VID_TO_UPLOAD_PROMPT = "Which video is the first one you want to upload?";
+        public static readonly string FFMPEG_PATH = Environment.CurrentDirectory + @"\ffmpeg.exe"; // to determine.
+        public static readonly string DOWNLOAD_FOLDER_PATH = Environment.CurrentDirectory + @"\" + DOWNLOAD_FOLDER_NAME + @"\";
         public static readonly Regex IP_REGEX = new Regex(@"^([0-9]{1,3}\.){3}[0-9]{1,3}$");
         public static readonly Regex URL_REGEX = new Regex(@"^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube(-nocookie)?\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$");
         public static ManualResetEvent resetEventStartUpload = new ManualResetEvent(false);
         public static ManualResetEvent resetEventUpload = new ManualResetEvent(false);
         public static ManualResetEvent resetEventDownload = new ManualResetEvent(false);
-        
+
+        // TODO : a LOT and I mean a whole fucking lot of validation and exceptions.
+        // TODO : save infos in json file.
         public static void Main(string[] args) 
         {
             Console.Clear();
                         
-            string url = DeterminePlaylistUrl();
-            int index = PromptIndex();
-            string ipAddress = DetermineUploadIp();
-            Console.WriteLine(WARNING);
-            Console.ReadKey();
+            string url = GetPlaylistUrl();
+            int index = GetIndex();
+            string ipAddress = GetUploadIp();
             Console.Clear();
 
             CancellationTokenSource cancelUpload = new CancellationTokenSource();
 
-            Task download = Task.Run(() => StartDownloadProcess(url, index));
+            Task download = Task.Run(() => StartDownloadProcess(url, index, DOWNLOAD_FOLDER_PATH));
             Task upload =  Task.Run(() => StartUploadProcess(ipAddress, cancelUpload.Token));
 
 
@@ -41,11 +44,10 @@ namespace MusicUploader
 
             Environment.Exit(0);
         }
-
-        public static void StartDownloadProcess(string listUrl, int startIndex)
+        
+        public static void StartDownloadProcess(string listUrl, int startIndex, string downloadPath)
         {
-            resetEventStartUpload.Set();
-            DownloadUtil.DownloadSongs(listUrl, startIndex);
+            DownloadUtil.DownloadSongs(listUrl, startIndex, downloadPath);
         }
 
         public static void StartUploadProcess(string ipAdress, CancellationToken cancelToken)
@@ -78,9 +80,9 @@ namespace MusicUploader
             } while (!cancelled);
             driver.Quit();
         }
-        
+
         //Validation done for now.
-        public static string DeterminePlaylistUrl()
+        public static string GetPlaylistUrl()
         {
             if (File.Exists(Environment.CurrentDirectory + SAVE_FILE))
             {
@@ -138,7 +140,7 @@ namespace MusicUploader
         }
 
         //Validation done for now.
-        public static string DetermineUploadIp()
+        public static string GetUploadIp()
         {
             while (true)
             {
@@ -164,7 +166,7 @@ namespace MusicUploader
         }
 
         //Validation done for now.
-        public static int PromptIndex()
+        public static int GetIndex()
         {
             while(true)
             {

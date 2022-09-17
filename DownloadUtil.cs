@@ -3,19 +3,22 @@ using OpenQA.Selenium.Chrome;
 using WindowsInput;
 using WindowsInput.Native;
 using System.Collections.ObjectModel;
+using FFmpeg.NET;
+using VideoLibrary;
 
 namespace MusicUploader
 {
-   public static class DownloadUtil
+    public static class DownloadUtil
     {
-        private const string MP3_NOW_URL = "https://mp3-now.com";
-        private const string SAVE_MP3_URL = "https://savemp3.net";
 
-        private const string MP3_URL = MP3_NOW_URL; // It's possible to use MP3_NOW_URL or SAVE_MP3_URL. 
-        //                                             Mp3-now has issues every once in a while though.
-        //                                             SAVE_MP3_URL not implemented.
+        public static void DownloadSongs(string listUrl, int startIndex, string downloadPath)
+        {
+            List<string> urls = GetVideoUrls(listUrl, startIndex);
+            Program.resetEventStartUpload.Set();
+            DownloadSongsUsingVideoLibrary(urls, downloadPath);
+        }
 
-        public static List<string> GetVideoUrls(string playlistUrl, int startIndex)
+        private static List<string> GetVideoUrls(string playlistUrl, int startIndex)
         {
             ChromeDriver driver = new ChromeDriver();
             driver.GoToUrl(playlistUrl);
@@ -44,34 +47,40 @@ namespace MusicUploader
                 string videoUrl = GetUrlOfVideo(videos.ElementAt(i));
                 urls.Add(videoUrl);
             }
-            
-            driver.Quit();
+
+            driver.Quit(); // Do not move. Quitting driver destroys "videos".
             return urls;
         }
 
-        public static void DownloadSongs(string listUrl, int startIndex)
+        // not tested properly yet
+        private static void DownloadSongsUsingVideoLibrary(List<string> videoUrls, string downloadPath)
         {
-            ChromeDriver driver = new ChromeDriver();
-            List<string> urls = GetVideoUrls(listUrl, startIndex);
-            driver.GoToUrl(MP3_URL);
-            DownloadSongsUsingMp3Now(urls, driver);
-            driver.Quit();
-        }
+            Directory.CreateDirectory(downloadPath);
+            Engine ffmpeg = new Engine(Program.FFMPEG_PATH);
+            YouTube yt = new YouTube();
 
-         private static void DownloadSongsUsingMp3Now(List<string> urls, ChromeDriver driver)
-        {
-            string handle = driver.CurrentWindowHandle;
-            for (int i = 0; i < urls.Count(); i++)
+            for (int i = 0; i < videoUrls.Count(); i++)
             {
-                Thread.Sleep(500);
-                driver.FindElement(By.Id("k_query")).SendKeys(urls.ElementAt(i) + Keys.Enter);
-                driver.CloseUselessStuff(handle);
-                driver.FindElement(By.Id("btn-start-convert")).Click();
-                driver.CloseUselessStuff(handle);
-                driver.FindElement(By.CssSelector(".btn-success.btn-orange")).Click();
-                driver.CloseUselessStuff(handle);
-                driver.FindElement(By.CssSelector(".btn-success.btn-blue")).Click();
-                driver.CloseUselessStuff(handle);
+                YouTubeVideo video = yt.GetVideo(videoUrls.ElementAt(i)); // gets a Video object with info about the video
+                
+                string mp4Path = downloadPath + video.FullName;
+                
+                // changes file extension from .mp4 to .mp3 by removing the last character of the path (4) and replacing it with 3.
+                string mp3Path = mp4Path.Remove(mp4Path.Length - 1) + "3";
+                
+                byte[] vidData = video.GetBytes();
+
+                //not working for some reason.
+                File.WriteAllBytes(mp4Path, vidData);
+
+                MediaFile inputFile = new MediaFile (mp4Path);
+                MediaFile outputFile = new MediaFile (mp3Path);
+                
+
+                // ConvertAsync() is fast enough that having it async is not worth the hassle.
+                Task.Run(() => ffmpeg.ConvertAsync(inputFile, outputFile)).Wait();
+                File.Delete(mp4Path);
+                
                 if (i != 0 && i % 10 == 0)
                 {
                     Program.resetEventUpload.Set();
@@ -80,16 +89,11 @@ namespace MusicUploader
                     Program.resetEventDownload.WaitOne();
                 }
             }
-            Thread.Sleep(3000);
+
             Program.resetEventUpload.Set();
         }
 
-        private static void DownloadSongsUsingSaveMp3(List<string> urls)
-        {
-            //TODO
-        }
-
-        private static string GetUrlOfVideo(IWebElement elem)
+        public static string GetUrlOfVideo(IWebElement elem)
         {
             return elem.GetAttribute("href");
         }

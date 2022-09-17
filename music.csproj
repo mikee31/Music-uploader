@@ -16,5 +16,7 @@
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="104.0.5112.7900"/>
     <PackageReference Include="AutoItX.Dotnet" Version="3.3.14.5"/>
     <PackageReference Include="InputSimulator" Version="1.0.4"/>
+    <PackageReference Include="xFFmpeg.NET" Version="5.0.1"/>
+    <PackageReference Include="VideoLibrary" Version="3.2.2"/>
   </ItemGroup>
 </Project>
