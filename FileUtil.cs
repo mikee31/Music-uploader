@@ -1,45 +1,15 @@
-using OpenQA.Selenium.Chrome;
 using WindowsInput;
 using WindowsInput.Native;
+using OpenQA.Selenium.Chrome;
 
 namespace MusicUploader
 {
-    public class FileUtil
+    public static class FileUtil
     {
-        public const string DOWNLOADS_FOLDER = @"C:\Users\Mike\Downloads\";
-        public const string MP3_TAG = "mp3-now.com";
-        public const int LENGTH_OF_PATH_TO_REMOVE_MP3_TAG = 38;
-        public static void FixFileNames()
-        {
-            string[] filePaths = GetAllFiles();
-
-            for (int i = 0; i < filePaths.Count(); i++)
-            {
-                string file;
-                if (filePaths[i].Contains(MP3_TAG))
-                {
-                    file = filePaths[i].Substring(LENGTH_OF_PATH_TO_REMOVE_MP3_TAG);
-                    File.Move(filePaths[i], DOWNLOADS_FOLDER + file);
-                }
-            }
-
-            filePaths = GetAllFiles();
-            for (int i = 0; i < filePaths.Count(); i++)
-            {
-                string file;
-                if (filePaths[i].Contains(".webm"))
-                {
-                    file = filePaths[i].Remove(filePaths[i].Count() - 5);
-                    File.Move(filePaths[i], file);
-                }
-            }
-        }
         
         public static string[] GetAllFiles()
         {
-            return Directory.GetFiles(DOWNLOADS_FOLDER).Where(
-                file => !file.Contains("desktop.ini"))
-                .ToArray<string>();
+            return Directory.GetFiles(Program.DOWNLOAD_FOLDER_PATH).ToArray<string>();
             
         }
 
@@ -48,7 +18,7 @@ namespace MusicUploader
             driver.MakeWindowBeInFocus();
 
             InputSimulator sim = new InputSimulator();
-            sim.Keyboard.TextEntry(DOWNLOADS_FOLDER);
+            sim.Keyboard.TextEntry(Program.DOWNLOAD_FOLDER_PATH);
             Thread.Sleep(200);
             sim.Keyboard.KeyPress(VirtualKeyCode.RETURN);
             Thread.Sleep(200);

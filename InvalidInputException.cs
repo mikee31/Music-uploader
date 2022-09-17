@@ -1,5 +1,3 @@
-
-
 namespace MusicUploader
 {
     public class InvalidInputException : Exception
