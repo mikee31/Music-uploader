@@ -77,7 +77,7 @@ namespace MusicUploader
                 MediaFile outputFile = new MediaFile (mp3Path);
                 
 
-                // ConvertAsync() is fast enough that having it async is not worth the hassle.
+                // ConvertAsync() is fast enough that having it be async is not worth the hassle.
                 Task.Run(() => ffmpeg.ConvertAsync(inputFile, outputFile)).Wait();
                 File.Delete(mp4Path);
                 

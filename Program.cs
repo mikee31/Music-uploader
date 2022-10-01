@@ -7,9 +7,7 @@ namespace MusicUploader
     {
         public const string SAVE_FILE = @"\infos.sav";
         public const string DOWNLOAD_FOLDER_NAME = "tempDownloads";
-        public const string INVALID_URL_MESSAGE = "This URL is not valid.";
         public const string CHANGE_URL_MESSAGE = "Do you want to change the playlist url? (y/n)";
-        public const string WARNING = "*** You need to make sure your default downloads folder is empty. The program won't work otherwise. Press any key to continue. ***";
         public const string URL_PROMPT = "Enter the adress of the playlist that you want to upload.";
         public const string IP_PROMPT = "Enter the ip adress where songs will be uploaded.";
         public const string FIRST_VID_TO_UPLOAD_PROMPT = "Which video is the first one you want to upload?";
@@ -21,8 +19,19 @@ namespace MusicUploader
         public static ManualResetEvent resetEventUpload = new ManualResetEvent(false);
         public static ManualResetEvent resetEventDownload = new ManualResetEvent(false);
 
-        // TODO : a LOT and I mean a whole fucking lot of validation and exceptions.
-        // TODO : save infos in json file.
+        /****************************************************************** TODO *******************************************************************/
+        /* 
+        * - A LOT and I mean a whole fucking lot of validation and exceptions.
+        * - Save infos in json file.
+        * - Change validation of youtube urls to whats in the tests project (use validation website instead of regex).
+        * - Make it possible to upload video instead of whole playlist.
+        * - Make it possible to download song without uploading it (and vice versa maybe?).
+        * - Try to use ChromeDriver as little as possible. Try to make everything using the internet be made with no concrete browser or input sim.
+        * - Maybe find a way to compile ffmpeg.exe as a smaller file with only the needed components.
+        * - Document code cause its kind of a mess at the moment. Especially everything related to ManualResetEvents.
+        */
+
+
         public static void Main(string[] args) 
         {
             Console.Clear();
